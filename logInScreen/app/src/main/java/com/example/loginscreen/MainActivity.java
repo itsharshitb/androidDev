@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     public void validate(View view)
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Info","Button pressed");
         Log.i("Username",username.getText().toString());
         Log.i("Password",password.getText().toString());
+        Toast.makeText(this, "Hey there !", Toast.LENGTH_SHORT).show();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
