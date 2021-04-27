@@ -29,9 +29,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         media = MediaPlayer.create(this,R.raw.audio);
+        SeekBar volumeControl = (SeekBar) findViewById(R.id.seekBar);
         int maxvol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         int curvol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        SeekBar volumeControl = (SeekBar) findViewById(R.id.seekBar2);
         volumeControl.setMax(maxvol);
         volumeControl.setProgress(curvol);
         volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -50,12 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        final SeekBar seek = (SeekBar) findViewById(R.id.seekBar3);
-        seek.setMax(media.getDuration());
-        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        final SeekBar songcon = (SeekBar) findViewById(R.id.seekBar2);
+        songcon.setMax(media.getDuration());
+        songcon.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.i("seek", Integer.toString(progress));
                 media.seekTo(progress);
             }
 
@@ -72,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                seek.setProgress(media.getCurrentPosition());
+                songcon.setProgress(media.getCurrentPosition());
             }
-        },0,1000);
+        }, 0,3000);
     }
 }
