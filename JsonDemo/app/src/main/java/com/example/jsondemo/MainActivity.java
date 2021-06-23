@@ -52,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
 //            Log.i("JSON",s);
             try{
                 JSONObject jsonObject = new JSONObject(s);
+//                Log.i("JsonObj",jsonObject.toString());
                 String weatherInfo = jsonObject.getString("weather");
 //                Log.i("weather", weatherInfo);
                 JSONArray arr = new JSONArray(weatherInfo);
+//                Log.i("size", String.valueOf(arr.length()));
                 for(int i=0;i<arr.length();i++)
                 {
                     JSONObject jsonPart = arr.getJSONObject(i);
@@ -72,6 +74,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         downloadTask task = new downloadTask();
-        task.execute("https://api.openweathermap.org/data/2.5/weather?q=London&appid=4a91b112d83a2c5fdb11d3347cd4dd9f");
+            task.execute("https://api.openweathermap.org/data/2.5/weather?q=London&appid=4a91b112d83a2c5fdb11d3347cd4dd9f");
     }
 }
