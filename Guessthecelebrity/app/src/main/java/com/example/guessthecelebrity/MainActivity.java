@@ -1,49 +1,49 @@
-package com.example.webcontentdownloader;
+package com.example.guessthecelebrity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    public class downloader extends AsyncTask<String, Void, String>
+    public class DownloadTask extends AsyncTask<String, Void, String>
     {
 
         @Override
-        protected String doInBackground(String... strings) {
-
-            String result="";
+        protected String doInBackground(String... urls) {
+            String res = "";
             URL url;
-            HttpURLConnection urlConnection=null;
-
+            HttpURLConnection urlConnection = null;
             try {
-                url = new URL(strings[0]);
+                url = new URL(urls[0]);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = urlConnection.getInputStream();
                 InputStreamReader reader = new InputStreamReader(in);
 
                 int data = reader.read();
-
-                while(data!=-1)
-                {
-                    char ch = (char)data;
-                    result+=ch;
+                while (data != -1) {
+                    char current = (char) data;
+                    res += current;
                     data = reader.read();
                 }
-                return result;
+
+
             } catch (Exception e) {
                 e.printStackTrace();
-                return  "Failed !";
             }
+            return res;
         }
     }
 
@@ -51,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        downloader dn = new downloader();
-        String str=null;
-        try {
-            str = dn.execute("https://www.google.com").get();
-        } catch (Exception e) {
+        DownloadTask task = new DownloadTask();
+        String result="";
+        try{
+            result = task.execute("https://www.imdb.com/list/ls052283250/").get();
+            Log.i("content", result);
+        }catch(Exception e)
+        {
             e.printStackTrace();
         }
-        Log.i("return value",str);
     }
 }
