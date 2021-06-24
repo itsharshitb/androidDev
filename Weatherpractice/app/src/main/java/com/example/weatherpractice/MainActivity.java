@@ -34,14 +34,13 @@ public class MainActivity extends AppCompatActivity {
         String city = cityname.getText().toString();
         DownloadTask task = new DownloadTask();
         try{
-//            Log.i("value","https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
-                task.execute("https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
+//          Log.i("value","https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
+            task.execute("https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(cityname.getWindowToken(),0);
         } catch(Exception e)
         {
             e.printStackTrace();
-//            Toast.makeText(getApplicationContext(),"Sorry we can't get your request :(",Toast.LENGTH_SHORT).show();
             Log.i("location","inside OnClick");
         }
     }
@@ -81,6 +80,21 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(s);
             try{
                 JSONObject jsonObject = new JSONObject(s);
+                String feel = jsonObject.getString("main");
+                String text1="";
+                JSONArray arr1 = new JSONArray(feel);
+                for(int i=0;i<arr1.length();i++)
+                {
+                    JSONObject jsonPart1 = arr1.getJSONObject(i);
+                    double mintemp = (double) jsonPart1.get("temp_min");
+                    double maxtemp = (double) jsonPart1.get("temp_max");
+                    double humidity = (double) jsonPart1.get("humidity");
+                    double pressure = (double) jsonPart1.get("pressure");
+                    Log.i("tempmin", String.valueOf(mintemp));
+                    Log.i("tempmax", String.valueOf(maxtemp));
+                    Log.i("humi", String.valueOf(humidity)); 
+                    Log.i("press", String.valueOf(pressure));
+                }
                 String weatherInfo = jsonObject.getString("weather");
                 String ans="";
                 JSONArray arr = new JSONArray(weatherInfo);
@@ -91,19 +105,17 @@ public class MainActivity extends AppCompatActivity {
                     String desc = jsonPart.getString("description");
                     if(!main.equals("") && !desc.equals(""))
                     {
-                        ans += main + " : " + desc + "\r\n";
+                        ans += "Weather condition: "+main + ", " + desc +"\r\n";
                     }
                     else
                     {
-//                        Toast.makeText(getApplicationContext(),"Sorry we can't get your request :(",Toast.LENGTH_SHORT).show();
                         Log.i("location","inside else block");
                     }
                 }
                 resultout.setText(ans);
-            } catch(Exception e)
-            {
+            } catch(Exception e) {
 //                Toast.makeText(getApplicationContext(),"Sorry we can't get your request :(",Toast.LENGTH_SHORT).show();
-                Log.i("location","inside OnPost method");
+                Log.i("location", "inside OnPost method");
                 resultout.setText("Make sure you have entered right country... -_-\"");
                 e.printStackTrace();
             }
