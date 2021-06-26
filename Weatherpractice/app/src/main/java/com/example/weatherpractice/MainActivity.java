@@ -1,4 +1,4 @@
-package com.example.weatherpractice;
+ package com.example.weatherpractice;
 // api key: 4a91b112d83a2c5fdb11d3347cd4dd9f
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,100 +34,75 @@ public class MainActivity extends AppCompatActivity {
 
     EditText cityname;
     TextView resultout;
+    TextView feeling;
     String ApiKey="4a91b112d83a2c5fdb11d3347cd4dd9f";
 
 
     public void find (View view) //onclick
     {
         String city = cityname.getText().toString();
-        DownloadTask task = new DownloadTask();
-        try{
-//          Log.i("value","https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
-            task.execute("https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey);
-            InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            manager.hideSoftInputFromWindow(cityname.getWindowToken(),0);
-        } catch(Exception e)
-        {
-            e.printStackTrace();
-            Log.i("location","inside OnClick");
-        }
-    }
+        RequestQueue requestQueue;
+        requestQueue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null,
+                new Response.Listener<JSONObject>() {
 
-    public class DownloadTask extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String... urls) {
-            String result="";
-            URL url;
-            HttpURLConnection urlConnection = null;
-
-            try{
-                url = new URL(urls[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                InputStream in = urlConnection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-
-                int data = reader.read();
-                while(data!=-1)
-                {
-                    char c = (char)data;
-                    result+=c;
-                    data = reader.read();
-                }
-                return result;
-            } catch(Exception e)
-            {
-//                Toast.makeText(getApplicationContext(),"Sorry we can't get your request :(",Toast.LENGTH_SHORT).show();
-                Log.i("location","inside DownloadTask class");
-                e.printStackTrace();
-                return null;
-            }
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            try{
-                JSONObject jsonObject = new JSONObject(s);
-                String feel = jsonObject.getString("main");
-                String text1="";
-                JSONArray arr1 = new JSONArray(feel);
-                for(int i=0;i<arr1.length();i++)
-                {
-                    JSONObject jsonPart1 = arr1.getJSONObject(i);
-                    double mintemp = (double) jsonPart1.get("temp_min");
-                    double maxtemp = (double) jsonPart1.get("temp_max");
-                    double humidity = (double) jsonPart1.get("humidity");
-                    double pressure = (double) jsonPart1.get("pressure");
-                    Log.i("tempmin", String.valueOf(mintemp));
-                    Log.i("tempmax", String.valueOf(maxtemp));
-                    Log.i("humi", String.valueOf(humidity)); 
-                    Log.i("press", String.valueOf(pressure));
-                }
-                String weatherInfo = jsonObject.getString("weather");
-                String ans="";
-                JSONArray arr = new JSONArray(weatherInfo);
-                for(int i=0;i<arr.length();i++)
-                {
-                    JSONObject jsonPart = arr.getJSONObject(i);
-                    String main = jsonPart.getString("main");
-                    String desc = jsonPart.getString("description");
-                    if(!main.equals("") && !desc.equals(""))
-                    {
-                        ans += "Weather condition: "+main + ", " + desc +"\r\n";
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+//                            Log.i("response", response.getString("weather"));
+                          JSONArray arr = new JSONArray(response.getString("weather"));
+                          for(int i=0;i<arr.length();i++)
+                          {
+                              JSONObject obj = arr.getJSONObject(i);
+                              String main=obj.getString("main");
+                              String desc=obj.getString("description");
+//                              Log.i("weather", desc + "  " + main);
+                              resultout.setText(main+":"+desc);
+                          }
+                        } catch (JSONException e) {
+                            resultout.setText("Please select valid location");
+                            e.printStackTrace();
+                        }
                     }
-                    else
-                    {
-                        Log.i("location","inside else block");
-                    }
-                }
-                resultout.setText(ans);
-            } catch(Exception e) {
-//                Toast.makeText(getApplicationContext(),"Sorry we can't get your request :(",Toast.LENGTH_SHORT).show();
-                Log.i("location", "inside OnPost method");
-                resultout.setText("Make sure you have entered right country... -_-\"");
-                e.printStackTrace();
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                resultout.setText("Please select valid location");
+                Log.i("Exception","Inside first api fetch");
             }
-        }
+        });
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET,
+                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try {
+                    JSONArray arr = new JSONArray(response.getString(Integer.parseInt("main")));
+                    for(int i=0;i<arr.length();i++)
+                    {
+                        JSONObject obj = arr.getJSONObject(i);
+                        String temp = obj.getString("feels_like");
+                        String pres = obj.getString("pressure");
+                        String humidity = obj.getString("humidity");
+                        feeling.setText("Temperature: " + temp+"\r\n"+ "Pressure: "+pres+"\r\n"+"Humidity: "+humidity);
+                    }
+                } catch (JSONException e) {
+                    resultout.setText("Please select valid location");
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                resultout.setText("Please select valid location");
+                Log.i("Exception","Inside 2nd api fetch");
+            }
+        });
+
+
+        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(jsonArrayRequest);
     }
 
     @Override
@@ -128,5 +111,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         cityname = findViewById(R.id.cityname);
         resultout = findViewById(R.id.resultout);
+        feeling = findViewById(R.id.feeling);
     }
 }
