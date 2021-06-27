@@ -1,8 +1,10 @@
 package com.example.weatherpractice;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -25,40 +27,56 @@ public class MainActivity extends AppCompatActivity {
     TextView resultout;
     TextView feeling;
     String ApiKey="4a91b112d83a2c5fdb11d3347cd4dd9f";
-
+    int flag=0;
 
     public void find (View view) //onclick
     {
+        flag=0;
+        InputMethodManager mng = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        mng.hideSoftInputFromWindow(view.getWindowToken(),0);
         String city = cityname.getText().toString();
         RequestQueue requestQueue;
         requestQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null,
+                "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey, null,
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
 //                            Log.i("response", response.getString("weather"));
-                            JSONArray arr =response.getJSONArray("weather");
-                            for(int i=0;i<arr.length();i++)
+                            String errcode = response.getString("cod");
+                            Log.i("error code",errcode);
+                            if(!errcode.equals("404")) {
+                                JSONArray arr = response.getJSONArray("weather");
+                                for (int i = 0; i < arr.length(); i++) {
+                                    JSONObject obj = arr.getJSONObject(i);
+                                    String main = obj.getString("main");
+//                                Log.i("info",main);
+                                    String desc = obj.getString("description");
+//                                Log.i("info",desc);
+                                    if (!main.equals("") && !desc.equals("")) {
+                                        resultout.setText("Weather: " + main + "\n" + "More details: " + desc);
+                                    }
+                                }
+                            }else
                             {
-                                JSONObject obj = arr.getJSONObject(i);
-                                String main=obj.getString("main");
-                                Log.i("info",main);
-                                String desc=obj.getString("description");
-                                Log.i("info",desc);
-                                resultout.setText(main+":"+desc);
+                                resultout.setText("Please select valid location");
+                                flag=1;
                             }
                         } catch (JSONException e) {
-                            //  resultout.setText("Please select valid location");
+                              resultout.setText("Please select valid locationUU");
+                              flag=1;
+//                            Log.i("xxx","jj");
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                flag = 1;
+                resultout.setText("Please select valid location");
+                feeling.setText("Please select valid location");
             }
 
         });
@@ -67,15 +85,20 @@ public class MainActivity extends AppCompatActivity {
                 "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null, new Response.Listener<JSONObject>() {
             public void onResponse(JSONObject response) {
                 try {
-                    JSONObject arr = response.getJSONObject("main");
+                        JSONObject arr = response.getJSONObject("main");
 
-                    String temp = arr.getString("feels_like");
-                    String pres = arr.getString("pressure");
-                    String humidity = arr.getString("humidity");
-                    feeling.setText("Temperature: " + temp+"\r\n"+ "Pressure: "+pres+"\r\n"+"Humidity: "+humidity);
+                        String temp = arr.getString("feels_like");
+                        String pres = arr.getString("pressure");
+                        String humidity = arr.getString("humidity");
+                        if (!temp.equals("") && !pres.equals("") && !humidity.equals("")) {
+                            feeling.setText("Temperature: " + temp + "\r\n" + "Pressure: " + pres + "\r\n" + "Humidity: " + humidity);
+                        } else {
+                            feeling.setText("Error fetching some data\n");
+                            feeling.setText(feeling + "Temperature: " + temp + "\r\n" + "Pressure: " + pres + "\r\n" + "Humidity: " + humidity);
+                        }
 
                 } catch (JSONException e) {
-                    //  resultout.setText("Please select valid location");
+                      feeling.setText("Please select valid location");
                     e.printStackTrace();
                 }
             }
@@ -89,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         requestQueue.add(jsonObjectRequest);
+        if(flag==0)
         requestQueue.add(jsonObjectRequest1);
     }
 
