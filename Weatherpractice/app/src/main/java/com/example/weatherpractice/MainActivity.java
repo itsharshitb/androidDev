@@ -62,10 +62,12 @@ public class MainActivity extends AppCompatActivity {
                             }else
                             {
                                 resultout.setText("Please select valid location");
+                                feeling.setText("Please select valid location");
                                 flag=1;
                             }
                         } catch (JSONException e) {
                               resultout.setText("Please select valid locationUU");
+                              feeling.setText("Please select valid location");
                               flag=1;
 //                            Log.i("xxx","jj");
                             e.printStackTrace();
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.GET,
-                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null, new Response.Listener<JSONObject>() {
+                "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+ApiKey, null, new Response.Listener<JSONObject>() {
             public void onResponse(JSONObject response) {
                 try {
                         JSONObject arr = response.getJSONObject("main");
