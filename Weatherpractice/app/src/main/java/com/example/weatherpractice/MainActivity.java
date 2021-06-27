@@ -51,58 +51,56 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
 //                            Log.i("response", response.getString("weather"));
-                          JSONArray arr = new JSONArray(response.getString("weather"));
-                          for(int i=0;i<arr.length();i++)
-                          {
-                              JSONObject obj = arr.getJSONObject(i);
-                              String main=obj.getString("main");
-                              String desc=obj.getString("description");
-//                              Log.i("weather", desc + "  " + main);
-                              resultout.setText(main+":"+desc);
-                          }
+                            JSONArray arr =response.getJSONArray("weather");
+                            for(int i=0;i<arr.length();i++)
+                            {
+                                JSONObject obj = arr.getJSONObject(i);
+                                String main=obj.getString("main");
+                                Log.i("info",main);
+                                String desc=obj.getString("description");
+                                Log.i("info",desc);
+                                resultout.setText(main+":"+desc);
+                            }
                         } catch (JSONException e) {
-                            resultout.setText("Please select valid location");
+                          //  resultout.setText("Please select valid location");
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                resultout.setText("Please select valid location");
-                Log.i("Exception","Inside first api fetch");
+
             }
+
         });
 
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET,
-                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
+        JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.GET,
+                "https://api.openweathermap.org/data/2.5/weather?q=london&appid=4a91b112d83a2c5fdb11d3347cd4dd9f", null, new Response.Listener<JSONObject>() {
+            public void onResponse(JSONObject response) {
                 try {
-                    JSONArray arr = new JSONArray(response.getString(Integer.parseInt("main")));
-                    for(int i=0;i<arr.length();i++)
-                    {
-                        JSONObject obj = arr.getJSONObject(i);
-                        String temp = obj.getString("feels_like");
-                        String pres = obj.getString("pressure");
-                        String humidity = obj.getString("humidity");
+                    JSONObject arr = response.getJSONObject("main");
+
+                        String temp = arr.getString("feels_like");
+                        String pres = arr.getString("pressure");
+                        String humidity = arr.getString("humidity");
                         feeling.setText("Temperature: " + temp+"\r\n"+ "Pressure: "+pres+"\r\n"+"Humidity: "+humidity);
-                    }
+
                 } catch (JSONException e) {
-                    resultout.setText("Please select valid location");
+                  //  resultout.setText("Please select valid location");
                     e.printStackTrace();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                resultout.setText("Please select valid location");
+               // resultout.setText("Please select valid location");
                 Log.i("Exception","Inside 2nd api fetch");
             }
         });
 
 
         requestQueue.add(jsonObjectRequest);
-        requestQueue.add(jsonArrayRequest);
+        requestQueue.add(jsonObjectRequest1);
     }
 
     @Override
