@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -45,7 +46,7 @@ public class MainActivity<bitmap> extends AppCompatActivity {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 InputStream in = connection.getInputStream();
                 Bitmap mybitmap = BitmapFactory.decodeStream(in);
-
+                Log.i("img", String.valueOf(mybitmap));
                 return mybitmap;
 
             } catch (Exception e) {
