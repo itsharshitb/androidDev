@@ -30,12 +30,12 @@ public class MainActivity<bitmap> extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        img = findViewById(R.id.imageView);
-    }
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            img = findViewById(R.id.imageView);
+        }
 
     class downloadimage extends AsyncTask<String, Void , Bitmap>
     {
