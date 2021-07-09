@@ -73,9 +73,11 @@ public class MainActivity extends AppCompatActivity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
-                fetchdata(location.getLatitude(),location.getLongitude());
-                Log.i("latlon", String.valueOf(location.getLatitude()));
-                Log.i("latlon", String.valueOf(location.getLongitude()));
+                String lon = String.valueOf(location.getLongitude());
+                lon = lon.substring(0,6);
+                String lat = String.valueOf(location.getLatitude());
+                lat = lat.substring(0,6);
+                fetchdata(lat,lon);
             }
         };
         if(Build.VERSION.SDK_INT<23) {
@@ -89,13 +91,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchdata(double latitude, double longitude) {
+    private void fetchdata(String latitude, String longitude) {
         Log.i("inside","fetch data");
+        Log.i("latlon", latitude);
+        Log.i("latlon", longitude);
 
         RequestQueue requestQueue;
         requestQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                "api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + apikey, null,
+                "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + apikey, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -103,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i("inside", "try catch");
                             //current location
                             String currentlocation="";
-                            JSONObject loc = response.getJSONObject("name");
+                            currentlocation = response.getString("name");
                             location.setText(currentlocation);
                             Log.i("location", String.valueOf(location));
 
@@ -124,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                             String humidity = jsonObject1.getString("humidity");
                             String sealevel = jsonObject1.getString("sea_level");
                             String groundlevel = jsonObject1.getString("grnd_level");
-                            details.setText("Temperature: "+temp+"\n"+
+                            details.setText("Temperature: "+temp+"°F\n"+
                                     "Pressure: "+pressure+"\n"+
                                     "Humidity: "+humidity+"\n"+
                                     "Sea Level: "+sealevel+"\n"+
